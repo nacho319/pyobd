@@ -33,6 +33,7 @@ import os #os.environ
 import threading
 import sys
 import serial
+import serial.tools.port_list
 import platform
 import time
 import ConfigParser #safe application configuration
@@ -590,8 +591,18 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         
     
     def scanSerial(self):
-        """scan for available ports. return a list of serial names"""
+        """send back the port which has an ELM-USB devide attached"""
         available = []
+
+        # other devices could be added, but I only have a Secons device
+        # use the serial library features to make this fast
+        for port in serial.tools.list_ports.grep("ELM-USB"):
+            available.append(port.device)
+        
+        if len(available) > 0:
+            return available
+        
+        # go slow and iterate accross possible device names        
         for i in range(256):
           try: #scan standart ttyS*
             s = serial.Serial(i)
